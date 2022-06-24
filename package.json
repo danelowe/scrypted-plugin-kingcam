@@ -1,0 +1,57 @@
+{
+   "name": "@danelowe/scrypted-plugin-kingcam",
+   "version": "0.0.1",
+   "description": "KingCam ONVIF Camera Plugin for Scrypted",
+   "author": "Scrypted",
+   "license": "Apache",
+   "scripts": {
+      "scrypted-setup-project": "scrypted-setup-project",
+      "prescrypted-setup-project": "scrypted-package-json",
+      "build": "scrypted-webpack",
+      "prepublishOnly": "NODE_ENV=production scrypted-webpack",
+      "prescrypted-vscode-launch": "scrypted-webpack",
+      "scrypted-vscode-launch": "scrypted-deploy-debug",
+      "scrypted-deploy-debug": "scrypted-deploy-debug",
+      "scrypted-debug": "scrypted-debug",
+      "scrypted-deploy": "scrypted-deploy",
+      "scrypted-readme": "scrypted-readme",
+      "scrypted-package-json": "scrypted-package-json"
+   },
+   "keywords": [
+      "scrypted",
+      "plugin",
+      "onvif",
+      "camera"
+   ],
+   "scrypted": {
+      "name": "KingCam ONVIF Camera Plugin",
+      "type": "DeviceProvider",
+      "interfaces": [
+         "Settings",
+         "DeviceProvider",
+         "DeviceCreator",
+         "DeviceDiscovery"
+      ],
+      "pluginDependencies": [
+         "@scrypted/prebuffer-mixin"
+      ]
+   },
+   "dependencies": {
+      "@koush/axios-digest-auth": "^0.8.5",
+      "@scrypted/common": "^1.0.1",
+      "@scrypted/sdk": "^0.0.199",
+      "@types/node": "^16.9.1",
+      "base-64": "^1.0.0",
+      "http-auth-utils": "^3.0.2",
+      "md5": "^2.3.0",
+      "node-fetch": "^3.2.6",
+      "onvif": "^0.6.6",
+      "syno": "^2.2.0",
+      "xml2js": "^0.4.23"
+   },
+   "devDependencies": {
+      "@types/md5": "^2.3.1",
+      "@types/xml2js": "^0.4.9",
+      "webpack-bundle-analyzer": "^4.5.0"
+   }
+}
