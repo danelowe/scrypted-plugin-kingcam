@@ -1,5 +1,9 @@
 # KingCam ONVIF Plugin for Scrypted
 
+## publish
+
+`npm publish --access public`
+
 ## Deploy to scrypted
 `npm run build && npm run scrypted-deploy 192.168.1.100`
 
