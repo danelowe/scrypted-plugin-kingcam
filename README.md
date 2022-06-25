@@ -1,11 +1,35 @@
 # KingCam ONVIF Plugin for Scrypted
 
+I've implemented a custom client that supports the minimum required ONVIF endpoints to get KingCam cameras set up with Scrypted. This is in `src/client`.
+
+`common.ts` and `rtsp.ts` are extracted from Scrypted.
+
 ## publish
 
 `npm publish --access public`
 
 ## Deploy to scrypted
 `npm run build && npm run scrypted-deploy 192.168.1.100`
+
+## Scrypted
+
+Set up to make security cameras compatible with HomeKit Secure Video.
+
+Install `@danelowe/scrypted-plugin-kingcam` plugin, `@scrypted/homekit` `@scrypted/snapshot`
+
+The cameras should have motion detection enabled, and able to send ONVIF events to scrypted.
+
+### Scrypted setup for each camera
+
+- Integrations, WebRTC (required), Rebroadcast, Transcoding, HomeKit, Snapshot.
+- Disable audio. The cameras might actually support audio, but HKSV requires AAC (which may be supported by camera?), and we don't really want audio.
+- HomeKit Tab - Transcoding Debug Mode.
+- HomeKit Pairing - Standalone Accessory Mode.
+- Transcoding - All streams: `-hwaccel vaapi -hwaccel_device /dev/dri/renderD128 -hwaccel_output_format yuv420p`
+- Stream: MainStream, Stream: SubStream - set RTSP parser to FFMPEG TCP
+- Snapshot: from prebuffer.
+
+**Reload plugins to ensure cameras are no longer set up in bridge mode*
 
 ## Enable motion detection.
 

@@ -22,7 +22,6 @@ export class ONVIFClient {
         const url = new URL(baseURL)
         url.pathname = 'onvif/device_service';
         this.url = url.toString();
-        console.log('url', this.url);
         this.soap   = new SOAP({username, password, url: this.url});
         this.media  = new MediaClient(this.soap);
         this.media2 = new Media2Client(this.soap);
@@ -30,7 +29,9 @@ export class ONVIFClient {
     }
 
     public async init() {
-        await this.soap.getSystemTime();
+        // getSystemTime would usually be used to get clock shift for digest auth, but the endpoint on KingCam is protected.
+        // The KingCam also seems to allow any time to be used for creating a password digest.
+        // await this.soap.getSystemTime();
         await this.getServices();
         // await this.getActiveSources();
     }
@@ -56,7 +57,6 @@ export class ONVIFClient {
                 `
         const data = await this.soap.request(this.url, body)
         const capabilities = linerase(data[0]['getCapabilitiesResponse'][0]['capabilities'][0]);
-        console.log('getCapabilities', capabilities);
         await Promise.all(Object.keys(capabilities).flatMap((key) =>
             key === 'extension'
                 ? Object.keys(capabilities.extension).map(k => this.addCapability(k, capabilities.extension[k].XAddr))

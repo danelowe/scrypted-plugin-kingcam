@@ -14,7 +14,7 @@ export class EventsClient {
     private binaryListener?: (value: boolean) => void;
     private objectListener?: (className: string) => void;
     private ringListenr?: () => void;
-    constructor(private soap: SOAP, private config: Config) {}
+    constructor(private soap: SOAP, private config: Config = {}) {}
 
     public init(url: string) {
         this.url = url;

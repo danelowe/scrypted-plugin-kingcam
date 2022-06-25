@@ -15,14 +15,13 @@ import sdk, {
     HttpResponse,
 } from "@scrypted/sdk";
 import {EventEmitter, Stream} from "stream";
-import {connectCameraAPI, OnvifCameraAPI} from "./onvif-api";
 import xml2js from 'xml2js';
 import onvif from 'onvif';
 import {ONVIFClient} from "./client/ONVIFClient";
 import {Destroyable, RtspProvider, RtspSmartCamera} from "./rtsp";
 import {UrlMediaStreamOptions} from "./common";
 
-const {mediaManager, systemManager, deviceManager, endpointManager} = sdk;
+const {systemManager, deviceManager, endpointManager} = sdk;
 
 function computeInterval(fps: number, govLength: number) {
     if (!fps || !govLength)
@@ -46,7 +45,6 @@ function convertAudioCodec(codec: string) {
 
 class OnvifCamera extends RtspSmartCamera implements ObjectDetector, HttpRequestHandler {
     eventStream: Stream;
-    client: OnvifCameraAPI;
     rtspMediaStreamOptions: Promise<UrlMediaStreamOptions[]>;
     motionTimeout?: NodeJS.Timeout;
     private onvifClient: ONVIFClient;
@@ -90,10 +88,6 @@ class OnvifCamera extends RtspSmartCamera implements ObjectDetector, HttpRequest
     }
 
     async takeSmartCameraPicture(options?: PictureOptions): Promise<MediaObject> {
-        // const nclient = await this.getONVIFClient()
-        // console.log('takePic', await nclient.media.getSnapshotURI());
-        // const client = await this.getClient();
-        // let snapshot: Buffer;
         let id = options?.id;
 
         if (!id) {
@@ -102,28 +96,22 @@ class OnvifCamera extends RtspSmartCamera implements ObjectDetector, HttpRequest
             id = vso?.id;
         }
 
-        // snapshot = await client.jpegSnapshot(id);
-        //
-        // // it is possible that onvif does not support snapshots, in which case return the video stream
-        // if (!snapshot) {
-            // grab the real device rather than the using this.getVideoStream
-            // so we can take advantage of the rebroadcast plugin if available.
-            const realDevice = systemManager.getDeviceById<VideoCamera>(this.id);
-            return realDevice.getVideoStream({
-                id,
-            });
+        // KingCam's ONVIF-supplied endpoint for snapshots doesn't work. Just use the prebuffer stream.
 
-            // todo: this is bad. just disable camera interface altogether.
-        // }
-        // return mediaManager.createMediaObject(snapshot, 'image/jpeg');
+        const realDevice = systemManager.getDeviceById<VideoCamera>(this.id);
+        return realDevice.getVideoStream({
+            id,
+        });
+
+        // todo: this is bad. just disable camera interface altogether.
     }
 
     async getConstructedVideoStreamOptions(): Promise<UrlMediaStreamOptions[]> {
         if (!this.rtspMediaStreamOptions) {
             this.rtspMediaStreamOptions = new Promise(async (resolve) => {
                 try {
-                    const client = await this.getClient();
-                    const profiles: any[] = await client.getProfiles();
+                    const client = await this.getONVIFClient();
+                    const profiles: any[] = await client.media.getProfiles();
                     const ret: UrlMediaStreamOptions[] = [];
                     for (const { $, name, videoEncoderConfiguration, audioEncoderConfiguration } of profiles) {
                         try {
@@ -131,7 +119,7 @@ class OnvifCamera extends RtspSmartCamera implements ObjectDetector, HttpRequest
                                 id: $.token,
                                 name: name,
                                 container: 'rtsp',
-                                url: await client.getStreamUrl($.token),
+                                url: await client.media.getStreamURL($.token),
                                 video: {
                                     fps: videoEncoderConfiguration?.rateControl?.frameRateLimit,
                                     bitrate: computeBitrate(videoEncoderConfiguration?.rateControl?.bitrateLimit),
@@ -202,10 +190,6 @@ class OnvifCamera extends RtspSmartCamera implements ObjectDetector, HttpRequest
         return ret;
     }
 
-    async createClient() {
-        return connectCameraAPI(this.getHttpAddress(), this.getUsername(), this.getPassword(), this.console, this.storage.getItem('onvifDoorbellEvent'), !!this.storage.getItem('debug'));
-    }
-
     async getONVIFClient() {
         if (!this.onvifClient) {
             const scheme = 'http://';
@@ -214,11 +198,6 @@ class OnvifCamera extends RtspSmartCamera implements ObjectDetector, HttpRequest
         }
         return this.onvifClient;
 
-    }
-    async getClient() {
-        if (!this.client)
-            this.client = await this.createClient();
-        return this.client;
     }
 
     showRtspUrlOverride() {
@@ -293,7 +272,6 @@ class OnvifCamera extends RtspSmartCamera implements ObjectDetector, HttpRequest
     }
 
     async putSetting(key: string, value: string) {
-        this.client = undefined;
         this.rtspMediaStreamOptions = undefined;
 
         if (key !== 'onvifDoorbell' && key !== 'onvifTwoWay')
@@ -312,6 +290,7 @@ class OnvifProvider extends RtspProvider implements DeviceDiscovery, Settings {
         this.discoverDevices(10000);
 
         onvif.Discovery.on('device', (cam: any, rinfo: any, xml: any) => {
+            console.log('discovery', xml);
             // Function will be called as soon as the NVT responses
 
             // Parsing of Discovery responses taken from my ONVIF-Audit project, part of the 2018 ONVIF Open Source Challenge

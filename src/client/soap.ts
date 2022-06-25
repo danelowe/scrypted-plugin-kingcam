@@ -21,10 +21,10 @@ export class SOAP {
     }
 
     public async request<T>(url: string, body: string, {header, auth}: RequestOptions = {}) : Promise<T> {
-        console.log('fetch', url, body);
         const response = await fetch(url, {
             method: 'POST',
             headers: {
+                'Authorization': 'Basic ' + Buffer.from(this.config.url + ":" + this.config.password).toString('base64'),
                 'Content-Type': 'application/soap+xml',
                 'Content-Length': Buffer.byteLength(body, 'utf8').toString(10), //options.body.length chinese will be wrong here
                 'charset': 'utf-8',
@@ -40,7 +40,7 @@ export class SOAP {
     }
 
     public async getSystemTime() {
-        const data = await this.request(this.config.url, '<GetSystemDateAndTime xmlns="http://www.onvif.org/ver10/device/wsdl"/>', {auth: false});
+        const data = await this.request(this.config.url, '<GetSystemDateAndTime xmlns="http://www.onvif.org/ver10/device/wsdl"/>', {auth: true});
         let systemDateAndTime = data[0]['getSystemDateAndTimeResponse'][0]['systemDateAndTime'][0];
         let dateTime = systemDateAndTime['UTCDateTime'] || systemDateAndTime['localDateTime'];
         let time;
@@ -84,8 +84,10 @@ export class SOAP {
     }
 
     private passwordDigest() {
-        let timestamp = (new Date((process.uptime() * 1000) + (this.timeShift || 0))).toISOString()
-        console.log('timestamp', timestamp);
+        // KingCam getSystemTime is password-protected, making it impossible to calculate clock shift
+        // The KingCam cameras seem to allow any date, even 3 years in the past, so digest auth is a bit redundant.
+        // They also have an unsecured telnet interface on port 9999, so authentication is a bit edundant anyway.
+        let timestamp = new Date().toISOString();
         let nonce = Buffer.allocUnsafe(16)
         nonce.writeUIntLE(Math.ceil(Math.random() * 0x100000000), 0, 4)
         nonce.writeUIntLE(Math.ceil(Math.random() * 0x100000000), 4, 4)

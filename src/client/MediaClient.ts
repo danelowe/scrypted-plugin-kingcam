@@ -8,6 +8,7 @@ export class MediaClient {
     private capabilities: any[];
     private videoSources: any[];
     private activeSources: any[];
+    private rtspUrls: {[token: string]: string} = {};
     private url;
 
     public async init(url: string) {
@@ -38,22 +39,54 @@ export class MediaClient {
         return linerase(data).getSnapshotUriResponse.mediaUri;
     }
 
+
+    async getStreamURL(profileToken?: string): Promise<string> {
+        if (!profileToken) {
+            profileToken = await this.getMainProfileToken();
+        }
+        if (!this.rtspUrls[profileToken]) {
+            const result = await this.getStreamURI({ protocol: 'RTSP', profileToken });
+            this.rtspUrls[profileToken] = result.uri;
+        }
+        return this.rtspUrls[profileToken];
+    }
+
+    async getStreamURI(options: {stream?: string, protocol?: string, profileToken?: string}): Promise<any> {
+        const body = `
+            <GetStreamUri xmlns="http://www.onvif.org/ver10/media/wsdl">
+                <StreamSetup>
+                    <Stream xmlns="http://www.onvif.org/ver10/schema">${options.stream || 'RTP-Unicast'}</Stream>
+                    <Transport xmlns="http://www.onvif.org/ver10/schema">
+                        <Protocol>${options.protocol || 'RTSP'}</Protocol>
+                    </Transport>
+                </StreamSetup>
+                <ProfileToken>${options.profileToken || this.activeSources[0].profileToken }</ProfileToken>
+            </GetStreamUri>
+        `
+        const data = await this.soap.request(this.url, body)
+        return linerase(data).getStreamUriResponse.mediaUri;
+    }
+
     public async getProfiles() : Promise<any> {
         if (!this.profiles) {
             const body = '<GetProfiles xmlns="http://www.onvif.org/ver10/media/wsdl"/>'
             const data = await this.soap.request(this.url, body)
             this.profiles = data[0]['getProfilesResponse'][0]['profiles'].map(linerase);
-            console.log('getProfiles', data, this.profiles);
         }
         return this.profiles;
     };
+
+    async getMainProfileToken() {
+        const profiles = await this.getProfiles();
+        const { token } = profiles[0].$;
+        return token;
+    }
 
     public async getVideoSources() : Promise<any[]> {
         if (!this.videoSources) {
             const body = '<GetVideoSources xmlns="http://www.onvif.org/ver10/media/wsdl"/>'
             const data = await this.soap.request(this.url, body)
             this.videoSources = linerase(data).getVideoSourcesResponse.videoSources;
-            console.log('getVideoSources', this.videoSources);
             if (!Array.isArray(this.videoSources)) {this.videoSources = [this.videoSources];}
         }
         return this.videoSources;
@@ -104,7 +137,5 @@ export class MediaClient {
                 };
             }
         }.bind(this));
-
-        console.log('getActiveSources', this.activeSources, this.videoSources);
     }
 }
