@@ -7,12 +7,6 @@
     <list default="true" id="d056820b-77e1-4a12-aafa-ea6ecbd0d9d6" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/client/EventsClient.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/client/EventsClient.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/client/MediaClient.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/client/MediaClient.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/client/ONVIFClient.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/client/ONVIFClient.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/client/soap.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/client/soap.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/onvif-api.ts" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -67,7 +61,7 @@
       <workItem from="1656025239259" duration="5875000" />
       <workItem from="1656060409178" duration="5090000" />
       <workItem from="1656098808871" duration="984000" />
-      <workItem from="1656121706441" duration="1780000" />
+      <workItem from="1656121706441" duration="2000000" />
     </task>
     <servers />
   </component>

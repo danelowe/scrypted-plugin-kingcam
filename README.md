@@ -19,6 +19,34 @@ Install `@danelowe/scrypted-plugin-kingcam` plugin, `@scrypted/homekit` `@scrypt
 
 The cameras should have motion detection enabled, and able to send ONVIF events to scrypted.
 
+### Required docker config:
+```dockerfile
+FROM koush/scrypted:v0.1.6
+RUN apt-get -y update
+RUN apt-get install -y ffmpeg
+```
+```yaml
+  scrypted:
+    build: ./scrypted/
+    privileged: true # this may not be necessary for all setups
+    container_name: scrypted
+    restart: always
+    network_mode: host
+    volumes:
+        - ./volumes/scrypted:/server/volume
+        # Adds `{ type: () => true }` to plain text body parser to allow XML or other non-JSON bodies to be posted.
+        - ./scrypted/plugin-http.js:/server/node_modules/@scrypted/server/dist/plugin/plugin-http.js
+    devices:
+      - /dev/dri/renderD128 # for intel hwaccel
+    environment:
+      SCRYPTED_FFMPEG_PATH: /usr/bin/ffmpeg # Use OS package rather than node package, to support VAAPI hardware decoding.
+    logging:
+        driver: "json-file"
+        options:
+            max-size: "10m"
+            max-file: "10"
+```
+
 ### Scrypted setup for each camera
 
 - Integrations, WebRTC (required), Rebroadcast, Transcoding, HomeKit, Snapshot.
