@@ -178,7 +178,11 @@ export abstract class RtspSmartCamera extends RtspCamera {
 
     constructor(nativeId: string, provider: RtspProvider) {
         super(nativeId, provider);
+    }
+
+    async init() {
         this.listenLoop();
+        return await Promise.resolve();
     }
 
     resetSensors(): void {
@@ -337,7 +341,7 @@ export abstract class RtspSmartCamera extends RtspCamera {
 }
 
 export class RtspProvider extends CameraProviderBase<UrlMediaStreamOptions> {
-    createCamera(nativeId: string): RtspCamera {
+    async createCamera(nativeId: string): Promise<RtspCamera> {
         return new RtspCamera(nativeId, this);
     }
 }

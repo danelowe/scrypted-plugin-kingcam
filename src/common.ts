@@ -1,4 +1,20 @@
-import sdk, { ScryptedDeviceBase, DeviceProvider, Settings, Setting, ScryptedDeviceType, VideoCamera, MediaObject, ScryptedInterface, Camera, PictureOptions, SettingValue, DeviceCreator, DeviceCreatorSettings, ResponseMediaStreamOptions } from "@scrypted/sdk";
+import sdk, {
+    ScryptedDeviceBase,
+    DeviceProvider,
+    Settings,
+    Setting,
+    ScryptedDeviceType,
+    VideoCamera,
+    MediaObject,
+    ScryptedInterface,
+    Camera,
+    PictureOptions,
+    SettingValue,
+    DeviceCreator,
+    DeviceCreatorSettings,
+    ResponseMediaStreamOptions,
+    ScryptedNativeId
+} from "@scrypted/sdk";
 import AxiosDigestAuth from '@koush/axios-digest-auth';
 import https from 'https';
 import { randomBytes } from "crypto";
@@ -201,15 +217,19 @@ export abstract class CameraProviderBase<T extends ResponseMediaStreamOptions> e
         });
     }
 
-    abstract createCamera(nativeId: string): CameraBase<T>;
+    abstract createCamera(nativeId: string): Promise<CameraBase<T>>;
 
-    getDevice(nativeId: string) {
+    async getDevice(nativeId: string) {
         let ret = this.devices.get(nativeId);
         if (!ret) {
-            ret = this.createCamera(nativeId);
+            ret = await this.createCamera(nativeId);
             if (ret)
                 this.devices.set(nativeId, ret);
         }
         return ret;
+    }
+
+    releaseDevice(id: string, nativeId: ScryptedNativeId): Promise<void> {
+        return Promise.resolve(undefined);
     }
 }
