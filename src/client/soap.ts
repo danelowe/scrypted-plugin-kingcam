@@ -1,4 +1,3 @@
-import fetch from "node-fetch";
 import {linerase, parseSOAPString} from "./utils";
 import crypto from "crypto";
 
@@ -26,7 +25,7 @@ export class SOAP {
             headers: {
                 'Authorization': 'Basic ' + Buffer.from(this.config.url + ":" + this.config.password).toString('base64'),
                 'Content-Type': 'application/soap+xml',
-                'Content-Length': Buffer.byteLength(body, 'utf8').toString(10), //options.body.length chinese will be wrong here
+                // 'Content-Length': Buffer.byteLength(body, 'utf8').toString(10), //options.body.length chinese will be wrong here
                 'charset': 'utf-8',
             },
             body: this.envelope(body, {header, auth}),

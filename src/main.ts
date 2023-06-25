@@ -16,7 +16,7 @@ import sdk, {
 } from "@scrypted/sdk";
 import {EventEmitter, Stream} from "stream";
 import xml2js from 'xml2js';
-import onvif from 'onvif';
+import onvif from 'onvif'; // @todo: replace this dependency with ONVIFClient?
 import {ONVIFClient} from "./client/ONVIFClient";
 import {Destroyable, RtspProvider, RtspSmartCamera} from "./rtsp";
 import {UrlMediaStreamOptions} from "./common";
