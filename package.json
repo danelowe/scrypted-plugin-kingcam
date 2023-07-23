@@ -1,6 +1,6 @@
 {
    "name": "@danelowe/scrypted-plugin-kingcam",
-   "version": "0.0.1",
+   "version": "0.0.2",
    "description": "KingCam ONVIF Camera Plugin for Scrypted",
    "author": "Scrypted",
    "license": "Apache",
